@@ -48,8 +48,9 @@ public class AccountController : BaseApiController
     [HttpPost("login")] // api/account/login
     public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
     {
-        var user = await _context.Users.SingleOrDefaultAsync(user => 
-            user.UserName.Equals(loginDto.Username));
+        var user = await _context.Users
+            .Include(p => p.Photos)
+            .SingleOrDefaultAsync(user => user.UserName.Equals(loginDto.Username));
 
         if (user == null) return Unauthorized("User does not exist");
 
@@ -64,7 +65,8 @@ public class AccountController : BaseApiController
         return new UserDto
         {
             Username = user.UserName,
-            Token = _tokenService.CreateToken(user)
+            Token = _tokenService.CreateToken(user),
+            PhotoUrl = user.Photos.SingleOrDefault(x => x.IsMain)?.Url
         };
     }
 
