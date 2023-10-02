@@ -1,1 +1,23 @@
-<p>photo-management works!</p>
+<div class="row" *ngIf="photos.length > 0">
+    <div class="col-2 mb-2" *ngFor="let photo of photos">
+        <h4 class="mb-2 text-center">{{photo.userName}}</h4>
+        <img src="{{photo.url}}" alt="photo of {{photo.userName}}" class="img-thumbnail mb-1" style="height: 150px;">
+        <div class="text-center">
+            <button 
+                class="btn btn-sm me-1" 
+                [disabled]="photo.isMain" 
+                (click)="approvePhoto(photo.id)"
+                [ngClass]="photo.isMain ? 'btn-success active' : 'btn-outline-success'">
+                Aprove
+            </button>
+            <button 
+                class="btn btn-sm btn-danger"
+                [disabled]="photo.isMain" 
+                (click)="rejectPhoto(photo.id)">
+                Reject
+            </button>
+        </div>
+    </div>
+</div>
+<h3 *ngIf="photos.length === 0">No photos to moderate</h3>
+

@@ -16,10 +16,15 @@ public class DataContext : IdentityDbContext<AppUser, AppRole, int, IdentityUser
     public DbSet<Message> Messages { get; set; }
     public DbSet<Group> Groups { get; set; } 
     public DbSet<Connection> Connections { get; set; }
+    public DbSet<Photo> Photos { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+
+        /* PHOTOS table configuration */
+        builder.Entity<Photo>()
+            .HasQueryFilter(p => p.IsApproved);
 
         /* Identity configuration */
         builder.Entity<AppUser>()

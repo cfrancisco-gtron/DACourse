@@ -52,7 +52,7 @@ public class UsersController : BaseApiController
     [HttpGet("{username}")] 
     public async Task<ActionResult<MemberDto>> GetUser(string username)
     {
-        return await _uow.UserRepository.GetMemberAsync(username);
+        return await _uow.UserRepository.GetMemberAsync(username, User.GetUsername());
     }
 
     [HttpPut]
@@ -86,8 +86,6 @@ public class UsersController : BaseApiController
             PublicId = result.PublicId
         };
 
-        if(user.Photos.Count == 0) photo.IsMain = true;
-
         user.Photos.Add(photo);
 
         if(await _uow.Complete())
@@ -110,6 +108,7 @@ public class UsersController : BaseApiController
 
         if(photo == null) return NotFound();
 
+        if(!photo.IsApproved) return BadRequest("This photo is pending approval");
         if(photo.IsMain) return BadRequest("This is already your main photo");
 
         var currentMain = user.Photos.SingleOrDefault(x => x.IsMain);
@@ -129,7 +128,7 @@ public class UsersController : BaseApiController
 
         if(user == null) return NotFound();
 
-        var photo = user.Photos.FirstOrDefault(x => x.Id == photoId);
+        var photo = await _uow.PhotoRepository.GetPhotoById(photoId);
 
         if(photo == null) return NotFound();
 

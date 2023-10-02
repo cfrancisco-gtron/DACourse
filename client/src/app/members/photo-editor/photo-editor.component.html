@@ -1,6 +1,10 @@
 <div class="row" *ngIf="member">
-    <div class="col-2 mb-2" *ngFor="let photo of member.photos">
-        <img src="{{photo.url}}" alt="photo of {{member.knownAs}}" class="img-thumbnail mb-1">
+    <div class="col-2 mb-2 img-wrapper" *ngFor="let photo of member.photos">
+        <img src="{{photo.url}}" alt="photo of {{member.knownAs}}" class="img-thumbnail mb-1"
+            [class.not-approved]="!photo.isApproved">
+        <div class="text-center img-text" *ngIf="!photo.isApproved">
+            <span class="text-danger">Pending approval</span>
+        </div>
         <div class="text-center">
             <button 
                 class="btn btn-sm me-1" 

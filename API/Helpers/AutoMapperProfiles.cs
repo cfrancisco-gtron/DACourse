@@ -21,6 +21,13 @@ public class AutoMapperProfiles : Profile
                 )
             );
         CreateMap<Photo, PhotoDto>();
+        CreateMap<Photo, PhotoForApprovalDto>()
+            .ForMember(
+                dest => dest.UserName, opt => opt.MapFrom(
+                    src => src.AppUser.UserName
+                )
+            );
+
         CreateMap<MemberUpdateDto, AppUser>();
         CreateMap<RegisterDto, AppUser>();
 

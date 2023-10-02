@@ -19,8 +19,16 @@ public class UserRepository : IUserRepository
         _mapper = mapper;
     }
 
-    public async Task<MemberDto> GetMemberAsync(string username)
+    public async Task<MemberDto> GetMemberAsync(string username, string currentUserame)
     {
+        if (username == currentUserame)
+        {
+            return await _context.Users
+                .IgnoreQueryFilters()
+                .Where(u => u.UserName == username)
+                .ProjectTo<MemberDto>(_mapper.ConfigurationProvider)
+                .SingleOrDefaultAsync();
+        }
         return await _context.Users
             .Where(u => u.UserName == username)
             .ProjectTo<MemberDto>(_mapper.ConfigurationProvider)
@@ -30,7 +38,7 @@ public class UserRepository : IUserRepository
     public async Task<PagedList<MemberDto>> GetMembersAsync(UserParams userParams)
     {
         var query = _context.Users.AsQueryable();
-        
+
         query = query.Where(u => u.UserName != userParams.CurrentUsername);
         query = query.Where(u => u.Gender == userParams.Gender);
 
@@ -47,8 +55,8 @@ public class UserRepository : IUserRepository
         };
 
         return await PagedList<MemberDto>.CreateAsync(
-            query.AsNoTracking().ProjectTo<MemberDto>(_mapper.ConfigurationProvider), 
-            userParams.PageNumber, 
+            query.AsNoTracking().ProjectTo<MemberDto>(_mapper.ConfigurationProvider),
+            userParams.PageNumber,
             userParams.PageSize);
     }
 
@@ -62,6 +70,14 @@ public class UserRepository : IUserRepository
         return await _context.Users
             .Include(p => p.Photos)
             .SingleOrDefaultAsync(user => user.UserName == username);
+    }
+    public async Task<AppUser> GetUserByPhotoIdAsync(int photoId)
+    {
+        return await _context.Users
+            .Include(p => p.Photos)
+            .IgnoreQueryFilters()
+            .Where(p => p.Photos.Any(p => p.Id == photoId))
+            .FirstOrDefaultAsync();
     }
 
     public async Task<string> GetUserGender(string username)
